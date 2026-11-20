@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DASHA — Boss Fight</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+
+<div id="game-screen">
+    <!-- Экран стартового меню и интро -->
+    <div id="intro-overlay">
+        <button id="start-btn">ИГРАТЬ</button>
+        <div id="intro-boss-container">
+            <img id="intro-boss-img" src="boss.png" alt="DASHA" onerror="this.style.display='none'; $('#intro-boss-fallback').show();">
+            <div id="intro-boss-fallback">DASHA</div>
+        </div>
+    </div>
+
+    <!-- Верхняя арена с сеткой -->
+    <div id="arena">
+        <!-- Полоска HP босса -->
+        <div id="boss-hp-container">
+            <div id="boss-name">DASHA</div>
+            <div id="boss-hp-bar-bg"><div id="boss-hp-bar"></div></div>
+        </div>
+
+        <!-- Спрайт игрока слева -->
+        <div id="player-wrapper" class="character">
+            <img id="player-img" src="player.png" alt="Player" onerror="this.style.display='none'; $('#player-fallback').show();">
+            <div id="player-fallback">PLAYER.PNG</div>
+        </div>
+
+        <!-- Коробка уклонения -->
+        <div id="dodge-box">
+            <canvas id="dodge-canvas" width="220" height="220"></canvas>
+            
+            <!-- Сенсорные кнопки для мобилок (появляются внутри/под коробкой в режиме уклонения) -->
+            <div id="mobile-controls">
+                <div class="m-btn" id="m-up">▲</div>
+                <div class="m-row-mid">
+                    <div class="m-btn" id="m-left">◀</div>
+                    <div class="m-btn" id="m-right">▶</div>
+                </div>
+                <div class="m-btn" id="m-down">▼</div>
+            </div>
+        </div>
+
+        <!-- Спрайт босса справа -->
+        <div id="boss-wrapper" class="character">
+            <div id="boss-speech" class="speech-bubble"></div>
+            <img id="boss-img" src="boss.png" alt="Boss" onerror="this.style.display='none'; $('#boss-fallback').show();">
+            <div id="boss-fallback">BOSS.PNG</div>
+        </div>
+
+        <!-- Боевая панель по центру -->
+        <div id="battle-hud">
+            <div id="hearts-row"></div>
+
+            <div id="status-box">
+                <div class="status-top">
+                    <div class="avatar-icon"></div>
+                    <span class="char-name">PLAYER</span>
+                    <span class="hp-label">HP</span>
+                    <div class="hp-bar-wrap">
+                        <span id="hp-text">100 / 100</span>
+                        <div id="hp-bar-fill"></div>
+                    </div>
+                </div>
+
+                <!-- 5 кнопок действий -->
+                <div class="action-buttons">
+                    <button class="act-btn selected" data-action="fight" title="Атака">⚔️</button>
+                    <button class="act-btn" data-action="act" title="Действие">ACT</button>
+                    <button class="act-btn" data-action="item" title="Предмет">🎒</button>
+                    <button class="act-btn" data-action="mercy" title="Пощада">✖</button>
+                    <button class="act-btn" data-action="defend" title="Защита">🛡️</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя черная панель диалогов и подменю -->
+    <div id="dialog-panel">
+        <div id="dialog-text">* DASHA appears.</div>
+        <div id="sub-menu"></div>
+
+        <!-- Шкала точности удара -->
+        <div id="attack-meter">
+            <div id="attack-target"></div>
+            <div id="attack-cursor"></div>
+            <div class="attack-hint">[ПРОБЕЛ / КЛИК — УДАР]</div>
+        </div>
+    </div>
+	
+	<div id="ending-overlay">
+        <video id="ending-video" playsinline></video>
+    </div>
+	
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
