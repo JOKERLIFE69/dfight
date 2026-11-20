@@ -240,13 +240,13 @@ $(document).ready(function () {
                     state.mercyProgress += 50;
                     updateHUD();
                     state.phase = 'DIALOG';
-                    showDialog('* Вы сделали Даше искренний комплимент! Она смутилась. (Пощада +50%)', () => setTimeout(startBossTurn, 1500));
+                    showDialog('* Вы сделали Даше искренний комплимент! Она смутилась', () => setTimeout(startBossTurn, 1500));
                 }},
                 { label: 'Дать ей плов', action: () => {
                     state.mercyProgress += 50;
                     updateHUD();
                     state.phase = 'DIALOG';
-                    showDialog('* Вы протянули тарелку горячего плова! Даша в восторге! (Пощада +50%)', () => setTimeout(startBossTurn, 1500));
+                    showDialog('* Вы протянули тарелку горячего плова! Даша в восторге, а может и нет...', () => setTimeout(startBossTurn, 1500));
                 }},
                 { label: 'Назад', action: () => returnToMenu() }
             ]);
@@ -271,7 +271,8 @@ $(document).ready(function () {
             openSubMenu(opts);
         } else if (action === 'mercy') {
             if (state.mercyProgress >= 100) {
-                triggerVictory('* ВЫ ПОЩАДИЛИ ДАШУ! Плов и комплименты растопили её сердце! ПОБЕДА!');
+                $('#boss-wrapper').fadeOut(600);
+                triggerVictory('* ВЫ ПОЩАДИЛИ ДАШУ! Ваши комплименты остановили в ней сердце...');
             } else {
                 state.phase = 'DIALOG';
                 showDialog(`* Даша еще не готова сдаться (Готовность: ${state.mercyProgress}%).`, () => setTimeout(startBossTurn, 1400));
@@ -357,7 +358,7 @@ $(document).ready(function () {
 
         if (state.bossHP <= 0) {
             $('#boss-wrapper').fadeOut(600);
-            triggerVictory('* ДАША повержена! ПОБЕДА!');
+            triggerVictory('* ДАША убита! ПОБЕДА!');
         } else {
             state.phase = 'DIALOG';
             const msg = damage > 0 ? `* Вы нанесли ${damage} урона!` : '* ПРОМАХ!';
@@ -442,7 +443,7 @@ $(document).ready(function () {
         bossVoice.currentTime = 0;
         bossVoice.play().catch(err => {});
 
-        $('#dialog-text').text(`* Даша говорит: "${chosenPhrase}"`);
+        $('#dialog-text').text(`* Даша: "${chosenPhrase}"`);
 
         setTimeout(() => {
             if (state.phase !== 'DODGING') return;
