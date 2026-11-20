@@ -18,26 +18,46 @@ $(document).ready(function () {
         ]
     };
 
-    // Аудиофайлы и видео концовки
-    const introAudio = new Audio('intro.mp3');
-    introAudio.volume = 0.7;
+    // Вспомогательная функция для предзагрузки аудио
+    function createPreloadedAudio(src, volume = 0.5, loop = false) {
+        const audio = new Audio();
+        audio.preload = 'auto';
+        audio.volume = volume;
+        audio.loop = loop;
+        audio.src = src;
+        audio.load();
+        return audio;
+    }
 
-    const bgm = new Audio('game.mp3');
-    bgm.loop = true;
-    bgm.volume = 0.4;
-
-    const bossVoice = new Audio('dasha_voice.mp3');
-    bossVoice.volume = 0.5;
-
-    const hitSound = new Audio('hit.mp3');
-    hitSound.volume = 0.6;
-
-    const victorySound = new Audio('victory.wav');
-    victorySound.volume = 0.75;
+    // Аудиофайлы и видео концовки с предзагрузкой
+    const introAudio = createPreloadedAudio('intro.mp3', 0.7, false);
+    const bgm = createPreloadedAudio('game.mp3', 0.4, true);
+    const bossVoice = createPreloadedAudio('dasha_voice.mp3', 0.5, false);
+    const hitSound = createPreloadedAudio('hit.mp3', 0.6, false);
+    const victorySound = createPreloadedAudio('victory.wav', 0.75, false);
 
     const endingVideo = document.getElementById('ending-video');
+    endingVideo.preload = 'auto';
     endingVideo.src = 'ending.mp4';
     endingVideo.volume = 0.85;
+    endingVideo.load();
+
+    // Предзагрузка спрайтов, чтобы при интро и бою не было рывков
+    ['player.png', 'boss.png'].forEach((imgSrc) => {
+        const img = new Image();
+        img.src = imgSrc;
+    });
+
+    function warmUpAllMedia() {
+        [introAudio, bgm, bossVoice, hitSound, victorySound].forEach((media) => {
+            if (media.readyState < 2) {
+                media.load();
+            }
+        });
+        if (endingVideo.readyState < 2) {
+            endingVideo.load();
+        }
+    }
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playBeep(freq = 440, duration = 0.06, type = 'square') {
@@ -114,7 +134,7 @@ $(document).ready(function () {
         $('#intro-overlay').fadeOut(800, function () {
             state.phase = 'MENU';
             bgm.play().catch(err => console.log('Ошибка запуска game.mp3:', err));
-            showDialog('* DASHA appears.');
+            showDialog('* Даша ждет.');
         });
     }
 
@@ -123,6 +143,7 @@ $(document).ready(function () {
         if (state.phase !== 'START_SCREEN') return;
         state.phase = 'INTRO';
 
+        warmUpAllMedia();
         if (audioCtx.state === 'suspended') audioCtx.resume();
         playBeep(660, 0.1);
 
@@ -409,6 +430,7 @@ $(document).ready(function () {
         const phrases = [
             'ТЫ РАЗБИЛ МНЕ СЕРДЦЕ!',
             'ПОПРОБУЙ УКЛОНИТЬСЯ ОТ ЭТОГО!',
+            'Я ПОМНЮ ЭТИ 20 ПОДРУГ...',
             'Я ВСЁ ЕЩЁ ЖДУ СВОЙ ПЛОВ...',
             'НЕ ТАК БЫСТРО!',
             'ДЕРЖИ ГОРЯЧИЙ КОФЕ!'
@@ -420,13 +442,12 @@ $(document).ready(function () {
         bossVoice.currentTime = 0;
         bossVoice.play().catch(err => {});
 
-        $('#dialog-text').text(`* ДАША: "${chosenPhrase}"`);
+        $('#dialog-text').text(`* Даша говорит: "${chosenPhrase}"`);
 
-        // Задержка перед появлением коробки уклонения (в мс, сейчас 5000 = 5 сек)
         setTimeout(() => {
             if (state.phase !== 'DODGING') return;
 
-            $('#dialog-text').text('* Уклоняйтесь от атак Даши!');
+            $('#dialog-text').text('* Уклоняйся от атак Даши!');
             $('#dodge-box').fadeIn(200);
 
             const isMobile = (navigator.maxTouchPoints > 0) || (window.innerWidth <= 980);
@@ -443,7 +464,6 @@ $(document).ready(function () {
                 const pattern = state.turnCount % 3;
 
                 if (pattern === 1) {
-                    // Дождь из разбитых сердец сверху
                     bullets.push({
                         type: 'heart',
                         x: 15 + Math.random() * 190,
@@ -453,7 +473,6 @@ $(document).ready(function () {
                         size: 10
                     });
                 } else if (pattern === 2) {
-                    // Перекрестный обстрел разбитыми сердцами с боков
                     const fromLeft = Math.random() > 0.5;
                     bullets.push({
                         type: 'heart',
@@ -464,7 +483,6 @@ $(document).ready(function () {
                         size: 10
                     });
                 } else {
-                    // Кофейная атака — парящие кружки кофе
                     bullets.push({
                         type: 'coffee',
                         x: 20 + Math.random() * 180,
